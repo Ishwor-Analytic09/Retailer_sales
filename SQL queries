@@ -1,0 +1,118 @@
+Q1. Which product category generates the most revenue?
+
+SELECT 
+    Product_Category, 
+    SUM(Total_Amount) AS Total_Revenue
+FROM 
+    retail_sales
+GROUP BY 
+    Product_Category
+ORDER BY 
+    Total_Revenue DESC;
+
+
+Q2. Are there any noticeable differences in purchasing behavior between genders or age groups over time?
+
+(a) By Gender:
+
+SELECT 
+    DATE_FORMAT(Date, '%Y-%m') AS Month, 
+    Gender, 
+    SUM(Total_Amount) AS Monthly_Revenue
+FROM 
+    retail_sales
+GROUP BY 
+    Month, Gender
+ORDER BY 
+    Month;
+
+(b) By Age Group:
+
+SELECT 
+    DATE_FORMAT(Date, '%Y-%m') AS Month,
+    CASE 
+        WHEN Age < 18 THEN '<18'
+        WHEN Age BETWEEN 18 AND 29 THEN '18-29'
+        WHEN Age BETWEEN 30 AND 44 THEN '30-44'
+        WHEN Age BETWEEN 45 AND 59 THEN '45-59'
+        ELSE '60+'
+    END AS Age_Group,
+    SUM(Total_Amount) AS Monthly_Revenue
+FROM 
+    retail_sales
+GROUP BY 
+    Month, Age_Group
+ORDER BY 
+    Month;
+
+
+Q3. Which months have the highest and lowest sales?
+
+SELECT 
+    DATE_FORMAT(Date, '%Y-%m') AS Month, 
+    SUM(Total_Amount) AS Monthly_Sales
+FROM 
+    retail_sales
+GROUP BY 
+    Month
+ORDER BY 
+    Monthly_Sales DESC;
+
+
+Q4. Who are the top 10 customers based on revenue?
+
+SELECT 
+    Customer_ID, 
+    SUM(Total_Amount) AS Total_Spent
+FROM 
+    retail_sales
+GROUP BY 
+    Customer_ID
+ORDER BY 
+    Total_Spent DESC
+LIMIT 10;
+
+
+Q5. Are there any outliers in the transaction amounts?
+
+This is better identified with statistical tools (boxplot, standard deviation), but you can get unusually high or low values like this:
+
+SELECT 
+    *
+FROM 
+    retail_sales
+WHERE 
+    Total_Amount > (
+        SELECT AVG(Total_Amount) + 3 * STDDEV(Total_Amount) FROM retail_sales
+    )
+   OR
+    Total_Amount < (
+        SELECT AVG(Total_Amount) - 3 * STDDEV(Total_Amount) FROM retail_sales
+    );
+
+
+Q6. What is the average transaction amount per category and over time?
+
+(a) By Product Category:
+
+SELECT 
+    Product_Category, 
+    AVG(Total_Amount) AS Average_Transaction
+FROM 
+    retail_sales
+GROUP BY 
+    Product_Category
+ORDER BY 
+    Average_Transaction DESC;
+
+(b) By Month:
+
+SELECT 
+    DATE_FORMAT(Date, '%Y-%m') AS Month, 
+    AVG(Total_Amount) AS Average_Transaction
+FROM 
+    retail_sales
+GROUP BY 
+    Month
+ORDER BY 
+    Month;
